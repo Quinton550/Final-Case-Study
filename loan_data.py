@@ -109,7 +109,10 @@ if st.button("Predict Loan Approval"): # Changed button text
     # Predict using the loaded model
     print(type(final_input_data))
     print(final_input_data)
-    prediction_proba = model.predict_proba(final_input_data)[0][1] # Probability of approval
+    import numpy as np
+    final_input_data = np.array([final_input_data])
+    prediction = model.predict(final_input_data)[0]
+    prediction_proba = model.predict_proba(final_input_data)[0][1]
 
     # Display result (corrected message as 1 means Approved)
     if prediction == 1:
