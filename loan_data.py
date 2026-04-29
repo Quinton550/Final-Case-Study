@@ -107,7 +107,8 @@ for col in input_data_encoded.columns:
 # Predict button
 if st.button("Predict Loan Approval"): # Changed button text
     # Predict using the loaded model
-    prediction = model.predict(final_input_data)[0]
+print(type(final_input_data))
+print(final_input_data)
     prediction_proba = model.predict_proba(final_input_data)[0][1] # Probability of approval
 
     # Display result (corrected message as 1 means Approved)
