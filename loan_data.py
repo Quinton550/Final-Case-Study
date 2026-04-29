@@ -37,7 +37,7 @@ monthly_gross_income = st.slider("Monthly Gross Income", min_value=500, max_valu
 monthly_housing_payment = st.slider("Monthly Housing Payment", min_value=300, max_value=5000, step=50)
 
 # Input field for Ever_Bankrupt_or_Foreclose (0 or 1)
-ever_bankrupt_or_foreclose = st.selectbox("Ever Bankrupt or Foreclosed?", options=[0, 1])
+ever_bankrupt_or_foreclose = st.selectbox("Ever Bankrupt or Foreclosed?", options=["Yes", "No"])
 
 # Categorical inputs with options (from df_clean.unique())
 reason = st.selectbox(
