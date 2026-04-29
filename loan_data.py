@@ -112,6 +112,7 @@ if st.button("Predict Loan Approval"): # Changed button text
     import numpy as np
     final_input_data = np.array([final_input_data])
     final_input_data = np.array(final_input_data).reshape(1, -1)
+    final_input_data = np.array(final_input_data).reshape(1, -1)
     prediction = model.predict(final_input_data)[0]
     prediction_proba = model.predict_proba(final_input_data)[0][1]
 
