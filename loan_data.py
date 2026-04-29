@@ -90,7 +90,12 @@ input_data_encoded = pd.get_dummies(input_data, columns=categorical_cols_for_dum
 
 # 2. Add any "missing" columns the model expects (fill with 0) and reorder.
 # The model.feature_names_in_ contains the column names after preprocessing.
-model_columns = model.feature_names_in_
+model_columns = [
+    "income",
+    "credit_score",
+    "loan_amount",
+    "employment_years"
+]
 final_input_data = pd.DataFrame(0, index=[0], columns=model_columns)
 
 # Populate the final_input_data with user's encoded input
