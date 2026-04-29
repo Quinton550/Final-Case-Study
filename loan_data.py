@@ -8,7 +8,7 @@ import sklearn  # This is needed for the pickle file to load!
 # Load the trained model
 # --- Put the Model in Drive First---
 with open("loan_approval_.pkl", "rb") as file:
-    pipeline_components = pickle.load(file)
+    model = pickle.load(file)
 
 Q1_INCOME = 3659.0
 Q2_INCOME = 5153.5
