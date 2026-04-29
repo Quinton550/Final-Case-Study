@@ -7,7 +7,7 @@ import sklearn  # This is needed for the pickle file to load!
 
 # Load the trained model
 # --- Put the Model in Drive First---
-with open("/logistic_regression_final_model.pkl", "rb") as file:
+with open("/loan_approval.pkl", "rb") as file:
     model = pickle.load(file)
 
 Q1_INCOME = 3659.0
