@@ -107,19 +107,31 @@ for col in input_data_encoded.columns:
 # Predict button
 if st.button("Predict Loan Approval"): # Changed button text
     # Predict using the loaded model
-    print(type(final_input_data))
-    print(final_input_data)
+    if st.button("Predict Loan Approval"):
+
     import numpy as np
-    final_input_data = np.array([final_input_data])
-    final_input_data = np.array(final_input_data).reshape(1, -1)
-    final_input_data = np.array(final_input_data).reshape(1, -1)
+
+    # FINAL INPUT MUST COME FROM YOUR ACTUAL VARIABLES OR ENCODED DATAFRAME
     final_input_data = [
-    income,
-    credit_score,
-    loan_amount,
-    employment_years,
-    dependents
+        income,
+        credit_score,
+        loan_amount,
+        employment_years,
+        dependents
     ]
+
+    # convert to correct shape
+    final_input_data = np.array(final_input_data).reshape(1, -1)
+
+    # predict
+    prediction = model.predict(final_input_data)[0]
+    prediction_proba = model.predict_proba(final_input_data)[0][1]
+
+    # output
+    if prediction == 1:
+        st.success(f"Prediction: Approved ✔️ (Probability: {prediction_proba:.2f})")
+    else:
+        st.error(f"Prediction: Denied ❌ (Probability: {prediction_proba:.2f})")
     prediction = model.predict(final_input_data)[0]
     prediction_proba = model.predict_proba(final_input_data)[0][1]
 
