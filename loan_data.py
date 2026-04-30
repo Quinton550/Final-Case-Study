@@ -97,7 +97,6 @@ model_columns = [
 ]
 
 final_input_data = pd.DataFrame(0, index=[0], columns=model_columns)
-]
 final_input_data = pd.DataFrame(0, index=[0], columns=model_columns)
 
 # Populate the final_input_data with user's encoded input
