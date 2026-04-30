@@ -11,8 +11,7 @@ try:
     with open("loan_approval_.pkl", "rb") as file:
         model = pickle.load(file)
 except Exception as e:
-    st.error(f"Model failed to load: {e}")
-    st.stop()
+    print("ERROR:", e)
 
 Q1_INCOME = 3659.0
 Q2_INCOME = 5153.5
@@ -76,14 +75,14 @@ input_data = pd.DataFrame({
     "Monthly_Housing_Payment": [monthly_housing_payment],
     "Ever_Bankrupt_or_Foreclose": [ever_bankrupt_or_foreclose],
     "Lender": [lender],
-    "income_level": [income_level]
+    "Income_Level": [income_level]
 })
 
 # --- Prepare Data for Prediction ---
 # 1. One-hot encode the user's input.
 # The categorical columns must be explicitly listed for pd.get_dummies to function correctly
 categorical_cols_for_dummies = [
-    'Reason', 'Employment_Status', 'Employment_Sector', 'Lender', 'income_level'
+    'Reason', 'Employment_Status', 'Employment_Sector', 'Lender', 'Income_Level'
 ]
 input_data_encoded = pd.get_dummies(input_data, columns=categorical_cols_for_dummies)
 
@@ -96,8 +95,6 @@ model_columns = [
     "Monthly_Gross_Income",
     "Monthly_Housing_Payment"
 ]
-
-final_input_data = pd.DataFrame(0, index=[0], columns=model_columns)
 final_input_data = pd.DataFrame(0, index=[0], columns=model_columns)
 
 # Populate the final_input_data with user's encoded input
@@ -111,13 +108,22 @@ if st.button("Predict Loan Approval"): # Changed button text
     # Predict using the loaded model
     print(type(final_input_data))
     print(final_input_data)
-prediction = model.predict(final_input_data)[0]
-prediction_proba = model.predict_proba(final_input_data)[0][1]
-prediction = model.predict(final_input_data)[0]
-prediction_proba = model.predict_proba(final_input_data)[0][1]
+    import numpy as np
+    final_input_data = np.array([final_input_data])
+    final_input_data = np.array(final_input_data).reshape(1, -1)
+    final_input_data = np.array(final_input_data).reshape(1, -1)
+    final_input_data = [
+    income_level,
+    FICO_score,
+    Requested_Loan_Amount,
+    Monthly_Gross_Income,
+    Monthly_Housing_Payment
+    ]
+    prediction = model.predict(final_input_data)[0]
+    prediction_proba = model.predict_proba(final_input_data)[0][1]
 
-# Display result (corrected message as 1 means Approved)
-if prediction == 1:
-     st.success(f"Prediction: **Approved!** \ud83d\udcb8 (Probability: {prediction_proba:.2f})") # Green for success
-else:
-     st.error(f"Prediction: **Denied.** \ud83d\udeab (Probability: {prediction_proba:.2f})") # Red for denial
+    # Display result (corrected message as 1 means Approved)
+    if prediction == 1:
+        st.success(f"Prediction: **Approved!** \ud83d\udcb8 (Probability: {prediction_proba:.2f})") # Green for success
+    else:
+        st.error(f"Prediction: **Denied.** \ud83d\udeab (Probability: {prediction_proba:.2f})") # Red for denial
