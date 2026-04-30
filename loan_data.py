@@ -89,7 +89,7 @@ input_data_encoded = pd.get_dummies(input_data, columns=categorical_cols_for_dum
 # 2. Add any "missing" columns the model expects (fill with 0) and reorder.
 # The model.feature_names_in_ contains the column names after preprocessing.
 model_columns = [
-    "income",
+    "Income_Level",
     "credit_score",
     "loan_amount",
     "employment_years"
@@ -112,7 +112,7 @@ if st.button("Predict Loan Approval"): # Changed button text
     final_input_data = np.array(final_input_data).reshape(1, -1)
     final_input_data = np.array(final_input_data).reshape(1, -1)
     final_input_data = [
-    income,
+    Income_Level,
     credit_score,
     loan_amount,
     employment_years,
