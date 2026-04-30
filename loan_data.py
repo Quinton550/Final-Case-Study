@@ -112,7 +112,7 @@ if st.button("Predict Loan Approval"): # Changed button text
     final_input_data = np.array(final_input_data).reshape(1, -1)
     final_input_data = np.array(final_input_data).reshape(1, -1)
     final_input_data = [
-    Income_Level,
+    income_Level,
     credit_score,
     loan_amount,
     employment_years,
