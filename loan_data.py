@@ -118,5 +118,5 @@ prediction_proba = model.predict_proba(final_input_data)[0][1]
 # Display result (corrected message as 1 means Approved)
 if prediction == 1:
      st.success(f"Prediction: **Approved!** \ud83d\udcb8 (Probability: {prediction_proba:.2f})") # Green for success
- else:
+else:
      st.error(f"Prediction: **Denied.** \ud83d\udeab (Probability: {prediction_proba:.2f})") # Red for denial
