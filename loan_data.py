@@ -114,7 +114,7 @@ if st.button("Predict Loan Approval"): # Changed button text
     final_input_data = np.array(final_input_data).reshape(1, -1)
     final_input_data = [
     income_level,
-    FICO_score,
+    fico_score,
     Requested_Loan_Amount,
     Monthly_Gross_Income,
     Monthly_Housing_Payment
