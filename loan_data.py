@@ -10,10 +10,8 @@ import pickle
 try:
     with open("loan_approval_.pkl", "rb") as file:
         model = pickle.load(file)
-    st.success("Model loaded successfully")
 except Exception as e:
-    st.error(f"Model failed to load: {e}")
-    st.stop()
+    print("ERROR:", e)
 
 Q1_INCOME = 3659.0
 Q2_INCOME = 5153.5
@@ -91,11 +89,10 @@ input_data_encoded = pd.get_dummies(input_data, columns=categorical_cols_for_dum
 # 2. Add any "missing" columns the model expects (fill with 0) and reorder.
 # The model.feature_names_in_ contains the column names after preprocessing.
 model_columns = [
-    "income_level",
-    "FICO_score",
-    "Requested_Loan_Amount",
-    "Monthly_Gross_Income",
-    "Monthly_Housing_Payment"
+    "income",
+    "credit_score",
+    "loan_amount",
+    "employment_years"
 ]
 final_input_data = pd.DataFrame(0, index=[0], columns=model_columns)
 
@@ -110,10 +107,20 @@ if st.button("Predict Loan Approval"): # Changed button text
     # Predict using the loaded model
     print(type(final_input_data))
     print(final_input_data)
-    
+    import numpy as np
+    final_input_data = np.array([final_input_data])
+    final_input_data = np.array(final_input_data).reshape(1, -1)
+    final_input_data = np.array(final_input_data).reshape(1, -1)
+    final_input_data = [
+    income,
+    credit_score,
+    loan_amount,
+    employment_years,
+    dependents
+    ]
     prediction = model.predict(final_input_data)[0]
     prediction_proba = model.predict_proba(final_input_data)[0][1]
-    
+
     # Display result (corrected message as 1 means Approved)
     if prediction == 1:
         st.success(f"Prediction: **Approved!** \ud83d\udcb8 (Probability: {prediction_proba:.2f})") # Green for success
