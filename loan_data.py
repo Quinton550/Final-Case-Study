@@ -1,18 +1,17 @@
-# -*- coding: utf-8 -*-
 import streamlit as st
 import pickle
 import pandas as pd
-import sklearn  # This is needed for the pickle file to load!
-
-# Load the trained model
-# --- Put the Model in Drive First---
-import pickle
+import numpy as np
 
 try:
     with open("loan_approval_.pkl", "rb") as file:
-        model = pickle.load(file)
+        pipeline_components = pickle.load(file)
+    model = pipeline_components['model']
+    preprocessor = pipeline_components['preprocessor']
+    scaler = pipeline_components['scaler']
 except Exception as e:
-    print("ERROR:", e)
+    st.error(f"Failed to load model: {e}")
+    st.stop()
 
 Q1_INCOME = 3659.0
 Q2_INCOME = 5153.5
@@ -29,7 +28,7 @@ def get_income_level(income):
         return 'Q4_high'
 
 st.markdown(
-    "<h1 style='text-align: center; background-color: #e0f2f7; padding: 10px; color: #007bb5;'><b>Loan Approval Prediction</b></h1>",
+   "<h1 style='text-align: center; padding: 12px; color: #333333; font-family: Arial, sans-serif; font-size: 28px;'>Loan Approval Prediction</h1>",
     unsafe_allow_html=True
 )
 
@@ -40,10 +39,8 @@ fico_score = st.slider("FICO Score", min_value=385, max_value=850, step=1)
 monthly_gross_income = st.slider("Monthly Gross Income", min_value=500, max_value=20000, step=100)
 monthly_housing_payment = st.slider("Monthly Housing Payment", min_value=300, max_value=5000, step=50)
 
-# Input field for Ever_Bankrupt_or_Foreclose (0 or 1)
 ever_bankrupt_or_foreclose = st.selectbox("Ever Bankrupt or Foreclosed?", options=["Yes", "No"])
 
-# Categorical inputs with options (from df_clean.unique())
 reason = st.selectbox(
     "Reason for Loan",
     options=['cover_an_unexpected_cost', 'credit_card_refinancing', 'home_improvement', 'major_purchase', 'debt_conslidation', 'other']
@@ -61,11 +58,8 @@ lender = st.selectbox(
     options=['A', 'B', 'C']
 )
 
-# Derive Income_Level
 income_level = get_income_level(monthly_gross_income)
 
-# Create the input data as a DataFrame
-# Ensure column names match those dropped from df_model before preprocessing
 input_data = pd.DataFrame({
     "Reason": [reason],
     "Requested_Loan_Amount": [requested_loan_amount],
@@ -79,52 +73,17 @@ input_data = pd.DataFrame({
     "Income_Level": [income_level]
 })
 
-# --- Prepare Data for Prediction ---
-# 1. One-hot encode the user's input.
-# The categorical columns must be explicitly listed for pd.get_dummies to function correctly
-categorical_cols_for_dummies = [
-    'Reason', 'Employment_Status', 'Employment_Sector', 'Lender', 'Income_Level'
-]
-input_data_encoded = pd.get_dummies(input_data, columns=categorical_cols_for_dummies)
+if st.button("Predict Loan Approval"):
+    try:
+        input_preprocessed = preprocessor.transform(input_data)
+        input_scaled = scaler.transform(input_preprocessed)
 
-# 2. Add any "missing" columns the model expects (fill with 0) and reorder.
-# The model.feature_names_in_ contains the column names after preprocessing.
-model_columns = [
-    "income",
-    "credit_score",
-    "loan_amount",
-    "employment_years"
-]
-final_input_data = pd.DataFrame(0, index=[0], columns=model_columns)
+        prediction = model.predict(input_scaled)[0]
+        prediction_proba = model.predict_proba(input_scaled)[0][1]
 
-# Populate the final_input_data with user's encoded input
-for col in input_data_encoded.columns:
-    if col in final_input_data.columns:
-        final_input_data[col] = input_data_encoded[col]
-
-
-# Predict button
-if st.button("Predict Loan Approval"): # Changed button text
-    # Predict using the loaded model
-    print(type(final_input_data))
-    print(final_input_data)
-    import numpy as np
-    final_input_data = np.array([final_input_data])
-    final_input_data = np.array(final_input_data).reshape(1, -1)
-    final_input_data = np.array(final_input_data).reshape(1, -1)
-    final_input_data = [
-    income,
-    credit_score,
-    loan_amount,
-    employment_years,
-    dependents
-    ]
-    prediction = model.predict(final_input_data)[0]
-    prediction_proba = model.predict_proba(final_input_data)[0][1]
-
-    # Display result (corrected message as 1 means Approved)
-    if prediction == 1:
-        st.success(f"Prediction: **Approved!** \ud83d\udcb8 (Probability: {prediction_proba:.2f})") # Green for success
-    else:
-        st.error(f"Prediction: **Denied.** \ud83d\udeab (Probability: {prediction_proba:.2f})") # Red for denial
-
+        if prediction == 1:
+            st.success(f"Prediction: **Approved!**(Probability: {prediction_proba:.2f})")
+        else:
+            st.error(f"Prediction: **Denied.** (Probability: {prediction_proba:.2f})")
+    except Exception as e:
+        st.error(f"Prediction failed: {e}")
