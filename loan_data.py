@@ -2,7 +2,7 @@ import streamlit as st
 import pickle
 import pandas as pd
 import numpy as np
-import sklearn  # This is needed for the pickle file to load!
+import sklearn  # needed for pickle to load
 
 
 # Load the trained model
@@ -31,7 +31,8 @@ def get_income_level(income):
 
 
 st.markdown(
-    "<h1 style='text-align: center; background-color: #e0f2f7; padding: 10px; color: #007bb5;'><b>Loan Approval Prediction</b></h1>",
+    "<h1 style='text-align: center; background-color: #e0f2f7; padding: 10px; color: #007bb5;'>"
+    "<b>Loan Approval Prediction</b></h1>",
     unsafe_allow_html=True
 )
 
@@ -50,7 +51,8 @@ ever_bankrupt_or_foreclose = st.selectbox("Ever Bankrupt or Foreclosed?", option
 
 reason = st.selectbox(
     "Reason for Loan",
-    options=['cover_an_unexpected_cost', 'credit_card_refinancing', 'home_improvement', 'major_purchase', 'debt_conslidation', 'other']
+    options=['cover_an_unexpected_cost', 'credit_card_refinancing', 'home_improvement',
+             'major_purchase', 'debt_conslidation', 'other']
 )
 employment_status = st.selectbox(
     "Employment Status",
@@ -58,19 +60,22 @@ employment_status = st.selectbox(
 )
 employment_sector = st.selectbox(
     "Employment Sector",
-    options=['consumer_discretionary', 'information_technology', 'energy', 'unknown', 'communication_services', 'health_care', 'financials', 'industrials', 'materials', 'utilities', 'real_estate', 'consumer_staples']
+    options=['consumer_discretionary', 'information_technology', 'energy', 'unknown',
+             'communication_services', 'health_care', 'financials', 'industrials',
+             'materials', 'utilities', 'real_estate', 'consumer_staples']
 )
-lender = st.selectbox(
-    "Preferred Lender",
-    options=['A', 'B', 'C']
-)
+lender = st.selectbox("Preferred Lender", options=['A', 'B', 'C'])
 
 
 # Derive Income_Level
 income_level = get_income_level(monthly_gross_income)
 
 
-# Create the input data as a DataFrame
+# Convert Yes/No to 1/0
+ever_bankrupt_int = 1 if ever_bankrupt_or_foreclose == "Yes" else 0
+
+
+# Build raw input DataFrame
 input_data = pd.DataFrame({
     "Reason": [reason],
     "Requested_Loan_Amount": [requested_loan_amount],
@@ -79,7 +84,7 @@ input_data = pd.DataFrame({
     "Employment_Sector": [employment_sector],
     "Monthly_Gross_Income": [monthly_gross_income],
     "Monthly_Housing_Payment": [monthly_housing_payment],
-    "Ever_Bankrupt_or_Foreclose": [ever_bankrupt_or_foreclose],
+    "Ever_Bankrupt_or_Foreclose": [ever_bankrupt_int],
     "Lender": [lender],
     "Income_Level": [income_level]
 })
@@ -92,32 +97,30 @@ categorical_cols_for_dummies = [
 input_data_encoded = pd.get_dummies(input_data, columns=categorical_cols_for_dummies)
 
 
-# Build final DataFrame with all columns the model expects, filled with 0
-model_columns = [
-    "income",
-    "credit_score",
-    "loan_amount",
-    "employment_years"
-]
-final_input_data = pd.DataFrame(0, index=[0], columns=model_columns)
+# Align columns to what the model was trained on
+try:
+    model_columns = list(model.feature_names_in_)
+except AttributeError:
+    # Fallback if model doesn't expose feature_names_in_
+    model_columns = input_data_encoded.columns.tolist()
 
 
-# Populate with any matching encoded columns
-for col in input_data_encoded.columns:
-    if col in final_input_data.columns:
-        final_input_data[col] = input_data_encoded[col].values
+# Add missing columns (filled with 0) and drop any extras, then reorder
+final_input_data = input_data_encoded.reindex(columns=model_columns, fill_value=0)
 
 
 # Predict button
 if st.button("Predict Loan Approval"):
-    input_array = final_input_data.to_numpy().reshape(1, -1)
+    try:
+        prediction = model.predict(final_input_data)[0]
+        prediction_proba = model.predict_proba(final_input_data)[0][1]
 
 
-    prediction = model.predict(input_array)[0]
-    prediction_proba = model.predict_proba(input_array)[0][1]
-
-
-    if prediction == 1:
-        st.success(f"Prediction: **Approved!** 💸 (Probability: {prediction_proba:.2f})")
-    else:
-        st.error(f"Prediction: **Denied.** 🚫 (Probability: {prediction_proba:.2f})")
+        if prediction == 1:
+            st.success(f"Prediction: **Approved!** 💸 (Probability: {prediction_proba:.2f})")
+        else:
+            st.error(f"Prediction: **Denied.** 🚫 (Probability: {prediction_proba:.2f})")
+    except Exception as e:
+        st.error(f"Prediction failed: {e}")
+        st.write("Input shape:", final_input_data.shape)
+        st.write("Input columns:", list(final_input_data.columns))
