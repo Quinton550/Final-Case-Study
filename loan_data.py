@@ -115,9 +115,9 @@ if st.button("Predict Loan Approval"): # Changed button text
     final_input_data = [
     income_level,
     fico_score,
-    Requested_Loan_Amount,
-    Monthly_Gross_Income,
-    Monthly_Housing_Payment
+    requested_loan_amount,
+    monthly_gross_income,
+    monthly_housing_payment
     ]
     prediction = model.predict(final_input_data)[0]
     prediction_proba = model.predict_proba(final_input_data)[0][1]
