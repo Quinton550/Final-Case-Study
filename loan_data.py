@@ -4,7 +4,7 @@ import pandas as pd
 import numpy as np
 
 try:
-    with open("loan_approval_(2).pkl", "rb") as file:
+    with open("loan_approval_ (2).pkl", "rb") as file:
         pipeline_components = pickle.load(file)
     model = pipeline_components['model']
     preprocessor = pipeline_components['preprocessor']
