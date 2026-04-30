@@ -10,8 +10,10 @@ import pickle
 try:
     with open("loan_approval_.pkl", "rb") as file:
         model = pickle.load(file)
+    st.success("Model loaded successfully")
 except Exception as e:
-    print("ERROR:", e)
+    st.error(f"Model failed to load: {e}")
+    st.stop()
 
 Q1_INCOME = 3659.0
 Q2_INCOME = 5153.5
