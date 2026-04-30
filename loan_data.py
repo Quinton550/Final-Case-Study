@@ -108,6 +108,7 @@ if st.button("Predict Loan Approval"): # Changed button text
     # Predict using the loaded model
     print(type(final_input_data))
     print(final_input_data)
+    
     prediction = model.predict(final_input_data)[0]
     prediction_proba = model.predict_proba(final_input_data)[0][1]
     
