@@ -112,8 +112,8 @@ if st.button("Predict Loan Approval"): # Changed button text
     print(final_input_data)
 prediction = model.predict(final_input_data)[0]
 prediction_proba = model.predict_proba(final_input_data)[0][1]
-    prediction = model.predict(final_input_data)[0]
-    prediction_proba = model.predict_proba(final_input_data)[0][1]
+prediction = model.predict(final_input_data)[0]
+prediction_proba = model.predict_proba(final_input_data)[0][1]
 
     # Display result (corrected message as 1 means Approved)
     if prediction == 1:
